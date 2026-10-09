@@ -1,5 +1,4 @@
-﻿
-using System;
+﻿using System;
 using System.Data;
 
 namespace ConsoleApp1
@@ -20,22 +19,42 @@ namespace ConsoleApp1
             table.Rows.Add(4, "Ольга Попова", 23, "ИС-22");
             table.Rows.Add(5, "Сергей БУрунов", 21, "ИС-21");
 
+            Print(table);
+
+            int searchId = 2;
+            foreach (DataRow row in table.Rows)
+            {
+                if ((int)row["Id"] == searchId)
+                {
+                    row["Age"] = 25;
+                    Console.WriteLine($"\nИзменён возраст студента с Id={searchId} на 25");
+                    break;
+                }
+            }
+            table.Rows.Add(6, "Никита Андрушкевич", 20, "ИС-22");
+            Console.WriteLine("Добавлен новый студент");
+            int deleteId = 3;
+            for (int i = 0; i < table.Rows.Count; i++)
+            {
+                if ((int)table.Rows[i]["Id"] == deleteId)
+                {
+                    table.Rows.RemoveAt(i);
+                    Console.WriteLine($"Удалён студент с Id={deleteId}");
+                    break;
+                }
+            }
+            Console.WriteLine("\nТаблица после изменений");
+            Print(table);
+            Console.ReadLine();
+        }
+        static void Print(DataTable table)
+        {
             Console.WriteLine("Id | Name               | Age | GroupName");
+            Console.WriteLine("---------------------------------------------");
             foreach (DataRow row in table.Rows)
             {
                 Console.WriteLine($"{row["Id"],-3}| {row["Name"],-19}| {row["Age"],-4}| {row["GroupName"]}");
             }
-            DataRow oldest = table.Rows[0];
-            for (int i = 1; i < table.Rows.Count; i++)
-            {
-                if ((int)table.Rows[i]["Age"] > (int)oldest["Age"])
-                {
-                    oldest = table.Rows[i];
-                }
-            }
-
-            Console.WriteLine($"\nСамый старший: {oldest["Name"]}, возраст: {oldest["Age"]}");
-            Console.ReadLine();
         }
     }
 }
