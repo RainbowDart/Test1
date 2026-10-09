@@ -50,7 +50,41 @@ namespace ConsoleApp2
                 }
                 Console.WriteLine();
             }
+            try
+            {
+                groups.Rows.Add(1, "Дубликат");
+                Console.WriteLine("Добавлено (не сработал PrimaryKey)");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Ошибка: {ex.Message}");
+            }
 
+            try
+            {
+                groups.Rows.Add(4, "");
+                Console.WriteLine("Добавлено (не сработал AllowDBNull)");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Ошибка: {ex.Message}");
+            }
+
+            Console.WriteLine("\n3. Студенты без группы");
+            bool found = false;
+            foreach (DataRow student in students.Rows)
+            {
+                int groupId = (int)student["GroupId"];
+                DataRow[] parent = groups.Select($"Id = {groupId}");
+
+                if (parent.Length == 0)
+                {
+                    Console.WriteLine($"Студент без группы: #{student["Id"]} {student["Name"]} (GroupId={groupId})");
+                    found = true;
+                }
+            }
+            if (!found)
+                Console.WriteLine("Все студенты привязаны к существующим группам");
             Console.ReadLine();
         }
     }

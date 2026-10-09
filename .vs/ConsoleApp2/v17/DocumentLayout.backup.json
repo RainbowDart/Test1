@@ -32,7 +32,7 @@
               "RelativeDocumentMoniker": "MyDataTable.cs",
               "ToolTip": "C:\\Users\\student\\source\\repos\\ConsoleApp2\\MyDataTable.cs*",
               "RelativeToolTip": "MyDataTable.cs*",
-              "ViewState": "AgIAABkAAAAAAAAAAAAgwDYAAAAJAAAAAAAAAA==",
+              "ViewState": "AgIAABAAAAAAAAAAAAAgwBIAAAAtAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-10-09T11:17:49.252Z",
               "EditorCaption": ""
@@ -43,12 +43,11 @@
               "Title": "Program.cs",
               "DocumentMoniker": "C:\\Users\\student\\source\\repos\\ConsoleApp2\\Program.cs",
               "RelativeDocumentMoniker": "Program.cs",
-              "ToolTip": "C:\\Users\\student\\source\\repos\\ConsoleApp2\\Program.cs*",
-              "RelativeToolTip": "Program.cs*",
+              "ToolTip": "C:\\Users\\student\\source\\repos\\ConsoleApp2\\Program.cs",
+              "RelativeToolTip": "Program.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAIAAAADAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-10-09T11:17:16.059Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-10-09T11:17:16.059Z"
             }
           ]
         }
