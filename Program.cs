@@ -1,5 +1,4 @@
 ﻿using ConsoleApp1;
-using ConsoleApp2;
 
 namespace ConsoleApp1
 {
