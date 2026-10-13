@@ -44,7 +44,7 @@ namespace ConsoleApp2
             }
 
 
-            Console.WriteLine("\nСтуденты\n");
+            Console.WriteLine("\nСтудентики\n");
             Console.WriteLine("Id | Nickname    | FirstName | LastName   | Group");
 
 
