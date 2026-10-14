@@ -1,124 +1,111 @@
 ﻿using System;
 using System.Data;
+using System.Data.Common;
 using Npgsql;
 
-<<<<<<< HEAD
-namespace ConsoleApp11
-=======
-namespace ConsoleApp1
->>>>>>> 17244748ad3359a65aaa6f9daf018d960242d694
+namespace ConsoleApp2
 {
     public class MyDataTable
     {
         public static void Run()
         {
-<<<<<<< HEAD
-            string sourceConn = "Host=wotacoma.ru;Port=5090;Username=students;Password=asd123qwe4ewq321dsa;Database=9/3-RPO-24/1";
-            string targetConn = "Host=wotacoma.ru;Port=5090;Username=rainbowdart;Password=123321;Database=rainbowdart";
-            DataTable source = new DataTable();
-            var conn1 = new NpgsqlConnection(sourceConn);
-            conn1.Open();
-
-            var selectCmd = new NpgsqlCommand(
-                "SELECT id, nickname, first_name, last_name, \"group\" FROM students_lesson13", conn1);
-            var adapter = new NpgsqlDataAdapter(selectCmd);
-            adapter.Fill(source);
-
-            conn1.Close();
-
-            Console.WriteLine($"Прочитано записей: {source.Rows.Count}");
-
-            var conn2 = new NpgsqlConnection(targetConn);
-            conn2.Open();
-            var createCmd = new NpgsqlCommand("""
-                CREATE TABLE IF NOT EXISTS students_lesson13 (
-                    id SERIAL PRIMARY KEY,
-                    nickname TEXT,
-                    first_name TEXT,
-                    last_name TEXT,
-                    "group" TEXT
-                )
-                """, conn2);
-            createCmd.ExecuteNonQuery();
-
-
-            foreach (DataRow row in source.Rows)
-            {
-                try
-                {
-                    var insertCmd = new NpgsqlCommand("""
-                        INSERT INTO students_lesson13 (nickname, first_name, last_name, "group")
-                        VALUES (@nick, @fn, @ln, @gr)
-                        """, conn2);
-
-                    insertCmd.Parameters.AddWithValue("@nick", row["nickname"]);
-                    insertCmd.Parameters.AddWithValue("@fn", row["first_name"]);
-                    insertCmd.Parameters.AddWithValue("@ln", row["last_name"]);
-                    insertCmd.Parameters.AddWithValue("@gr", row["group"]);
-
-                    insertCmd.ExecuteNonQuery();
-                    Console.WriteLine($"Перенесён: {row["first_name"]} {row["last_name"]}");
-                }
-                catch
-                {
-                    Console.WriteLine($"Дубликат: {row["first_name"]} {row["last_name"]}");
-                }
-            }
-
-            conn2.Close();
-=======
             string connString = "Host=wotacoma.ru;Port=5090;Username=students;Password=asd123qwe4ewq321dsa;Database=9/3-RPO-24/1";
+            DbProviderFactories.RegisterFactory("Npgsql", NpgsqlFactory.Instance);
+            DbProviderFactory factory = DbProviderFactories.GetFactory("Npgsql");
 
-            var conn = new NpgsqlConnection(connString);
+            DataTable table = new DataTable("Students");
+            var conn = factory.CreateConnection();
+            conn.ConnectionString = connString;
             conn.Open();
 
-            var insertCmd = new NpgsqlCommand("""
-                INSERT INTO students_lesson13 (nickname, first_name, last_name, "group")
-                VALUES (@nick, @fn, @ln, @gr)
-                """, conn);
+            var cmd = factory.CreateCommand();
+            cmd.Connection = conn;
+            cmd.CommandText = "SELECT id, nickname, first_name, last_name FROM students_lesson13";
 
-            insertCmd.Parameters.AddWithValue("@nick", "durbesel");
-            insertCmd.Parameters.AddWithValue("@fn", "Vlad");
-            insertCmd.Parameters.AddWithValue("@ln", "Chistalev");
-            insertCmd.Parameters.AddWithValue("@gr", "RPO 24/1");
-
-            try
-            {
-                int rows = insertCmd.ExecuteNonQuery();
-                Console.WriteLine($"Добавлено строк: {rows}");
-            }
-            catch
-            {
-                Console.WriteLine("Повторка, такой есть уже! Ниче не добавил");
-            }
+            var adapter = factory.CreateDataAdapter();
+            adapter.SelectCommand = cmd;
+            adapter.Fill(table);
 
             conn.Close();
 
-            DataTable table = new DataTable("Students");
+            Console.WriteLine($"После загрузки");
+            Console.WriteLine($"Всего строк: {table.Rows.Count}\n");
+            PrintStates(table);
 
-            var conn2 = new NpgsqlConnection(connString);
-            conn2.Open();
+            DataRow newRow = table.NewRow();
+            newRow["id"] = 0;
+            newRow["nickname"] = "vladik";
+            newRow["first_name"] = "Vlad";
+            newRow["last_name"] = "Chistalev";
 
-            var selectCmd = new NpgsqlCommand(
-                "SELECT id, nickname, first_name, last_name, \"group\" FROM students_lesson13", conn2);
+            Console.WriteLine("Новая строка до добавления");
+            Console.WriteLine($"RowState: {newRow.RowState}");
+            table.Rows.Add(newRow);
 
-            var adapter = new NpgsqlDataAdapter(selectCmd);
-            adapter.Fill(table);
+            Console.WriteLine("После добавления");
+            Console.WriteLine($"RowState: {newRow.RowState}");
 
-            conn2.Close();
+            DataRow first = table.Rows[0];
+            Console.WriteLine($"Меняем имя студента: {first["first_name"]}");
+            first["first_name"] = "изменено";
 
-            Console.WriteLine("\nСтуденты \n");
-            Console.WriteLine("Id | Nickname    | FirstName | LastName   | Group");
+            Console.WriteLine("После изменения");
+            Console.WriteLine($"RowState: {first.RowState}");
+
+            DataRow second = table.Rows[1];
+            Console.WriteLine($"Удаляем студента: {second["first_name"]}");
+            second.Delete();
+
+            Console.WriteLine("После удаления");
+            Console.WriteLine($"RowState: {second.RowState}");
+
+            Console.WriteLine("\nСостояния всех строк после всех изменений");
+            PrintStates(table);
+
+
+            table.RejectChanges();
+
+            Console.WriteLine("\n После отката");
+            Console.WriteLine($"Всего строк: {table.Rows.Count}");
+            PrintStates(table);
+
+            DataRow newRow2 = table.NewRow();
+            newRow2["id"] = 0;
+            newRow2["nickname"] = "vladik";
+            newRow2["first_name"] = "Vlad";
+            newRow2["last_name"] = "Chistalev";
+            table.Rows.Add(newRow2);
+
+            table.Rows[0]["first_name"] = "измененно2";
+            table.Rows[1].Delete();
+
+            Console.WriteLine("\nПеред AcceptChanges");
+            PrintStates(table);
+
+            table.AcceptChanges();
+
+            Console.WriteLine("\nПосле AcceptChanges ");
+            PrintStates(table);
+            Console.ReadLine();
+        }
+
+        static void PrintStates(DataTable table)
+        {
+            Console.WriteLine("Id | FirstName   | RowState");
 
             foreach (DataRow row in table.Rows)
             {
-                Console.WriteLine(
-                    $"{row["id"],-3}| {row["nickname"],-12}| {row["first_name"],-10}| {row["last_name"],-11}| {row["group"]}");
+                if (row.RowState == DataRowState.Deleted)
+                {
+                    int id = (int)row["id", DataRowVersion.Original];
+                    string name = (string)row["first_name", DataRowVersion.Original];
+                    Console.WriteLine($"{id,-3}| {name,-12}| Deleted");
+                }
+                else
+                {
+                    Console.WriteLine($"{row["id"],-3}| {row["first_name"],-12}| {row.RowState}");
+                }
             }
-
-            Console.WriteLine($"\nВсего студентов: {table.Rows.Count}");
->>>>>>> 17244748ad3359a65aaa6f9daf018d960242d694
-            Console.ReadLine();
         }
     }
 }
