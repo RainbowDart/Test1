@@ -1,5 +1,3 @@
-using ConsoleApp2;
-
 namespace ConsoleApp11
 
 {
