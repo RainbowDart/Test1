@@ -1,30 +1,42 @@
-﻿using System;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.EntityFrameworkCore;
 using ConsoleApp1;
 
-var student = new Student
+
+var builder = Host.CreateApplicationBuilder(args);
+string connString =
+    builder.Configuration.GetConnectionString("Default")
+    ?? throw new InvalidOperationException("not found string connection 'default'");
+builder.Services.AddDbContext<AppDbContext>(opt => opt.UseNpgsql(connString));
+using var host = builder.Build();
+using var scope = host.Services.CreateScope();
+var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+try
 {
-    Id = 1,
-    FirstName = "Влас",
-    LastName = "Петрович",
-    Age = 19,
-    Email = "vlas@gmail.com",
-    EnrollmentYear = 2025
-};
+    bool canConnect = await db.Database.CanConnectAsync();
 
-Console.WriteLine("Анкета студента");
-Console.WriteLine($"Студент: {student.FirstName} {student.LastName}");
-Console.WriteLine($"Возраст: {student.Age}");
-Console.WriteLine($"Email: {student.Email}");
-Console.WriteLine($"Год поступления: {student.EnrollmentYear}");
+    if (!canConnect)
+    {
+        Console.WriteLine("Не удалось подключиться");
+        return;
 
-student.Age = 27;
-student.LastName = "Педоренко";
-student.FirstName = "Федот";
-student.Email = "raindow@yandex.sru";
+    }
+    Console.WriteLine("Подключение прошло норм!");
+    Console.WriteLine($"База данных: {db.Database.GetDbConnection().Database}");
+    var students = await db.Students.ToListAsync();
 
-Console.WriteLine("\nПосле изменения:");
-Console.ForegroundColor = ConsoleColor.Red;
-Console.WriteLine($"Студент: {student.FirstName} {student.LastName}");
-Console.WriteLine($"Возраст: {student.Age}");
-Console.WriteLine($"Email: {student.Email}");
-Console.WriteLine($"Год поступления: {student.EnrollmentYear}");
+    Console.WriteLine("Список студентов");
+    foreach (var st in students)
+    {
+        Console.WriteLine($"{st.Id} : {st.FirstName} " +
+            $"{st.LastName}, " +
+            $"Возраст: {st.Age}");
+    }
+    Console.WriteLine($"Кол-во студентов: {students.Count}");
+}
+catch
+{
+    Console.WriteLine("Че-то не так(");
+}
